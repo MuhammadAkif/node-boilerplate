@@ -1,0 +1,8 @@
+# Ignore these files or folders
+/node_modules
+/models
+/tests
+/config
+/services/partsInterpreter
+.env
+
