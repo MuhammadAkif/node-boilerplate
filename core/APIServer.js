@@ -7,9 +7,11 @@ const cors = require("cors")
 const config = require("config")
 const database = require("./Database")
 const express = require("express")
+const fs = require("fs")
 const helmet = require("helmet")
 const HttpStatus= require("http-status-codes")
 const morgan = require("morgan")
+const path = require("path")
 const RateLimit = require("express-rate-limit")
 const utils = require("./Utils")
 
@@ -69,6 +71,31 @@ class APIServer {
 	}
 
 	_setupRoutes () {
+		this.router = express.Router()
+		const apiServer = this
+
+		const routesDir = path.join(__dirname, "../api/v1", "controllers")
+
+		fs
+			.readdirSync(routesDir)
+			.forEach((file) => {
+				if (file.match(/(.+Controller)\.js$/) && !file.match(/BaseController.js/)) {
+
+					let modelName = file.split("Controller")[0]
+
+					let route = require(path.join(routesDir, file))(this.database.models[modelName])
+
+					if (route.path) {
+
+						apiServer.router.use(route.path, route.router)
+
+						if (route.alias) {
+							apiServer.router.use(route.alias, route.router)
+						}
+					}
+				}
+			})
+		this.app.use(config.application.path, this.router)
 
 		/*To check if server is running*/
 		this.app.use("/health", (req, res) => {

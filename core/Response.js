@@ -27,6 +27,5 @@ class Response {
 	}
 }
 
-module.exports = {
-	Response
-}
+module.exports = Response
+

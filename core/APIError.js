@@ -12,6 +12,7 @@ class APIError extends Error {
 
 	//TODO: fix normalize error array
 	static normalize (error) {
+
 		let normalizedErrors = []
 
 		utils.logger.error(error)
