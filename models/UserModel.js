@@ -22,9 +22,22 @@ const UserSchema = new mongoose.Schema({
         index: true
     },
     roles: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Role',
+        role: {
+            type: String,
+            enum : ['regular', 'manager', 'globalManager'],
+            required: [true, "Role name is required"],
+            index: true
+        },
+        groupId: {
+            type: String,
+            required: false,
+            default: null
+        },
     }]
 });
+
+UserSchema.path('roles').validate(function (roles) {
+    return true
+})
 
 module.exports = UserSchema;

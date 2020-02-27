@@ -36,7 +36,7 @@ class BaseController {
                 status: HttpStatusCodes.CREATED,
                 data: result,
                 meta: {
-                    message: "Record found"
+                    message: "Record created"
                 }
             })
         }catch(err) {
@@ -55,9 +55,10 @@ class BaseController {
             let {id} = req.params
             let result = await this._model.findById(id)
             return new Response({
+                status: result ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
                 meta: {
-                    message: "Record found"
+                    message: result ? "Record found" : "Record not found"
                 }
             })
         }catch(err) {
@@ -74,11 +75,12 @@ class BaseController {
      */
     async readMany(req,res, next) {
         try {
-            let result = await this._model.find(id)
+            let result = await this._model.find()
             return new Response({
+                status: result.length ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
                 meta: {
-                    message: "Record found"
+                    message: result.length ? "Record found" : "No record found"
                 }
             })
         }catch(err) {
@@ -95,11 +97,12 @@ class BaseController {
     async update(req, res, next) {
         try {
             const changedEntry = req.body;
-            await this._model.update({_id: req.params._id}, {$set: changedEntry});
+            let result = await this._model.update({_id: req.params.id}, {$set: changedEntry});
 
             return new Response({
+                status: result.nModified ? HttpStatusCodes.OK : HttpStatusCodes.BAD_REQUEST,
                 meta: {
-                    message: "Record found"
+                    message: result.nModified ? "Record update" : "Record not updated"
                 }
             })
         }catch (err) {
@@ -114,12 +117,16 @@ class BaseController {
      * @return {Object} res The response object
      */
     async delete(req, res, next) {
-        await this._model.remove({ _id: req.params.id });
-        return new Response({
-            meta: {
-                message: "Record found"
-            }
-        })
+        try {
+            await this._model.remove({_id: req.params.id});
+            return new Response({
+                meta: {
+                    message: "Record deleted"
+                }
+            })
+        }catch(err) {
+            return APIError.normalize(err)
+        }
     }
 
     getRouter({
@@ -133,8 +140,8 @@ class BaseController {
             controller: this,
             routes: {
                 GET: {
-                    "/:id": [...middlewares, "readOne"],
-                    "/": [...middlewares, "readMany"]
+                    "/": [...middlewares, "readMany"],
+                    "/:id": [...middlewares, "readOne"]
 
                 },
                 POST: {
@@ -143,8 +150,8 @@ class BaseController {
                 PUT: {
                     "/:id": [...middlewares, "update"]
                 },
-                delete: {
-                    "/": [...middlewares, "delete"]
+                DELETE: {
+                    "/:id": [...middlewares, "delete"]
                 }
             }
 
