@@ -4,6 +4,11 @@ class CollectionController extends BaseController {
     constructor(model) {
         super(model);
     }
+
+    async create(req, res, next) {
+
+        return super.create(req, res, next);
+    }
 }
 
 module.exports = (model) => new CollectionController(model).getRouter({

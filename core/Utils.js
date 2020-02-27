@@ -50,5 +50,74 @@ module.exports = {
 			}
 			
 		}
+	},
+	Roles: {
+		globalManager: {
+			"collection": [
+				"read",
+				"write",
+				"update",
+				"delete"
+			],
+			"user": [
+				"read",
+				"write",
+				"update",
+				"delete"
+			],
+			"item": [
+				"read",
+				"write",
+				"update",
+				"delete"
+			],
+			"group": [
+				"read",
+				"write",
+				"update",
+				"delete"
+			]
+		},
+		manager: {
+			"collection": [
+				"read",
+				"write",
+				"update",
+				"delete"
+			],
+			"user": [
+				"read",
+				"create",
+				"update",
+				"delete"
+			],
+			"item": [
+				"read",
+				"create",
+				"update",
+				"delete"
+			],
+			"group": [
+				"read",
+				"create",
+				"update",
+				"delete"
+			]
+		},
+		regular: {
+			"collection": [
+				"read"
+			],
+			"user": [
+				"read",
+				"update"
+			],
+			"item": [
+				"read"
+			],
+			"group": [
+				"read"
+			]
+		}
 	}
 }

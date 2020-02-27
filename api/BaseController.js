@@ -1,4 +1,5 @@
 const APIError = require("../core/APIError")
+const {authorize} = require("../middlewares/Auth")
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
 const Response = require("../core/Response")
@@ -75,7 +76,7 @@ class BaseController {
      */
     async readMany(req,res, next) {
         try {
-            let result = await this._model.find()
+            let result = await this._model.find(res.locals.query)
             return new Response({
                 status: result.length ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
@@ -135,23 +136,24 @@ class BaseController {
                   routes = {}
               }) {
 
+        let entity = this._model.instance.constructor.modelName
         let routerMeta = {
             path,
             controller: this,
             routes: {
                 GET: {
-                    "/": [...middlewares, "readMany"],
-                    "/:id": [...middlewares, "readOne"]
+                    "/": [...middlewares, authorize("read", entity), "readMany"],
+                    "/:id": [...middlewares, authorize("read", entity), "readOne"]
 
                 },
                 POST: {
-                    "/": [...middlewares, "create"]
+                    "/": [...middlewares, authorize("create", entity) ,"create"]
                 },
                 PUT: {
-                    "/:id": [...middlewares, "update"]
+                    "/:id": [...middlewares, authorize("update", entity),  "update"]
                 },
                 DELETE: {
-                    "/:id": [...middlewares, "delete"]
+                    "/:id": [...middlewares, authorize("delete", entity), "delete"]
                 }
             }
 
