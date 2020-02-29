@@ -1,22 +1,16 @@
-const APIError = require("../core/APIError")
 const {authorize} = require("../middlewares/Auth")
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
-const Response = require("../core/Response")
+const BaseService = require("../services/BaseService.js")
 
 
 
 class BaseController {
-    /**
-     * @param {Model} model The default model object
-     * for the controller. Will be required to create
-     * an instance of the controller
-     */
-    constructor(model) {
-        if(!model)
-            throw new Error("Please provide a model")
 
-        this._model = model;
+     constructor(service, APIError, Response) {
+        this.baseService = service || new BaseService();
+        this.APIError = APIError;
+        this.Response = Response;
         this.create = this.create.bind(this);
         this.readOne = this.readOne.bind(this);
         this.readMany = this.readMany.bind(this);
@@ -24,16 +18,10 @@ class BaseController {
         this.delete = this.delete.bind(this);
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async create(req, res, next) {
         try {
-            let result = await this._model.create(req.body)
-            return new Response({
+            let result = await this.baseService.create(req.body)
+            return new this.Response({
                 status: HttpStatusCodes.CREATED,
                 data: result,
                 meta: {
@@ -41,21 +29,15 @@ class BaseController {
                 }
             })
         }catch(err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async readOne(req, res, next) {
         try {
             let {id} = req.params
-            let result = await this._model.findById(id)
-            return new Response({
+            let result = await this.baseService.readOne(id)
+            return new this.Response({
                 status: result ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
                 meta: {
@@ -63,21 +45,15 @@ class BaseController {
                 }
             })
         }catch(err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async readMany(req,res, next) {
         try {
-            let result = await this._model.find(res.locals.query)
-            return new Response({
+            let result = await this.baseService.readMany(res.locals.query)
+            return new this.Response({
                 status: result.length ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
                 meta: {
@@ -85,81 +61,85 @@ class BaseController {
                 }
             })
         }catch(err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async update(req, res, next) {
         try {
             const changedEntry = req.body;
-            let result = await this._model.update({_id: req.params.id}, {$set: changedEntry});
+            let result = await this.baseService.update(id, changedEntry);
 
-            return new Response({
+            return new this.Response({
                 status: result.nModified ? HttpStatusCodes.OK : HttpStatusCodes.BAD_REQUEST,
                 meta: {
                     message: result.nModified ? "Record update" : "Record not updated"
                 }
             })
         }catch (err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async delete(req, res, next) {
         try {
-            await this._model.remove({_id: req.params.id});
-            return new Response({
+            await this.baseService.delete(id);
+            return new this.Response({
                 meta: {
                     message: "Record deleted"
                 }
             })
         }catch(err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
     getRouter({
                   path,
                   middlewares = [],
-                  routes = {}
+                  routes = {},
+                  entity
               }) {
 
-        let entity = this._model.instance.constructor.modelName
+            // let entity = this._model.instance.constructor.modelName
         let routerMeta = {
             path,
             controller: this,
+            // routes: {
+            //     GET: {
+            //         "/": [...middlewares, authorize("read", entity), "readMany"],
+            //         "/:id": [...middlewares, authorize("read", entity), "readOne"]
+            //
+            //     },
+            //     POST: {
+            //         "/": [...middlewares, authorize("create", entity) ,"create"]
+            //     },
+            //     PUT: {
+            //         "/:id": [...middlewares, authorize("update", entity),  "update"]
+            //     },
+            //     DELETE: {
+            //         "/:id": [...middlewares, authorize("delete", entity), "delete"]
+            //     }
+            // }
             routes: {
                 GET: {
-                    "/": [...middlewares, authorize("read", entity), "readMany"],
-                    "/:id": [...middlewares, authorize("read", entity), "readOne"]
+                    "/": [...middlewares, "readMany"],
+                    "/:id": [...middlewares, "readOne"]
 
                 },
                 POST: {
-                    "/": [...middlewares, authorize("create", entity) ,"create"]
+                    "/": [...middlewares, "create"]
                 },
                 PUT: {
-                    "/:id": [...middlewares, authorize("update", entity),  "update"]
+                    "/:id": [...middlewares, "update"]
                 },
                 DELETE: {
-                    "/:id": [...middlewares, authorize("delete", entity), "delete"]
+                    "/:id": [...middlewares, "delete"]
                 }
             }
-
         }
 
-        routerMeta.routes = { ...routerMeta.routes, routes }
+        routerMeta.routes = { ...routerMeta.routes, ...routes }
 
         return new Router(routerMeta).registerRoutes()
 

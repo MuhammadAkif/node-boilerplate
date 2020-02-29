@@ -6,18 +6,18 @@ class UserContext {
         this.roleType = null
     }
 
-    setStrategy(user, roles) {
+    setStrategy(user, roles, groupId) { // group condition
         user.roles.forEach((role) => {
             if(this.user === null || this.user.role === "regular") {
                 if (role.role === "globalManager") {
                     this.user = new GlobalManger(user, roles)
                     this.roleType = "globalManager"
                 }
-                else if(role.role === "manager") {
+                else if(role.role === "manager" && role.groupId === groupId) {
                     this.user = new Manager(user, roles)
                     this.roleType = "manager"
                 }
-                else if(role.role === "regular") {
+                else if(role.role === "regular" && role.groupId === groupId) {
                     this.user = new Regular(user, roles)
                     this.roleType = "regular"
                 }
@@ -65,7 +65,7 @@ class Manager extends User {
        let groupId = req.query.groupId
        let managerOfGroups = this.extractGroupAllowed(this.user.roles)
        if(managerOfGroups.indexOf(groupId) !== -1) {
-           let can = this.roles["manager"][entity].indexOf(operation) !== -1
+           let can = this.roles["manager"][entity].indexOf(operation) !== -1 //array.find
            return can
        }
     }
@@ -83,7 +83,7 @@ class Regular extends User {
             operation == "update"
         ) {
             if(this.user._id.toString() === id) {
-                let can = this.roles["regular"][entity].indexOf(operation) !== -1
+                let can = this.roles["regular"][entity].indexOf(operation) !== -1 //array.find
                 return can
             }
             else {

@@ -36,6 +36,15 @@ const UserSchema = new mongoose.Schema({
     }]
 });
 
+UserSchema.statics.findUserByEmail = async function (email) {
+    let user = await this.findOne({ email: email }).lean()
+    return user
+}
+
+UserSchema.statics.addNewRole = async function (id, role) {
+    let updatedUser = await this.update({ id: id }, { $push: { roles: role } },)
+}
+
 UserSchema.path('roles').validate(function (roles) {
     return true
 })

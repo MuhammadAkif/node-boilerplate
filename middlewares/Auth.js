@@ -6,8 +6,8 @@ const {Roles} = require("../core/Utils")
 
 
 const authorize = async (operation, entity) => {
-    let userContext = new UserContext().setStrategy(req.user, Roles)
     return function (req, res, next) {
+        let userContext = new UserContext().setStrategy(req.user, Roles)
         if(req.query.groupId && userContext.roleType === "globalManager") {
             res.locals.query = { groupId: req.query.groupId }
         }else {
@@ -18,6 +18,8 @@ const authorize = async (operation, entity) => {
         }else {
             throw new APIError({ message: "no group id provided", status: HttpStatusCode.BAD_REQUEST })
         }
+        //check group id on top
+
         let can = userContext.executeStrategy(req, operation, entity)
         if(can) {
             next()
