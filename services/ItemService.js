@@ -7,5 +7,4 @@ module.exports = class ItemService extends BaseService {
     constructor() {
         super(Item);
     }
-
 }

@@ -1,12 +1,15 @@
 const BaseController = require("../../BaseController")
 
 class GroupController extends BaseController {
-    constructor(model) {
-        super(model);
+    constructor(GroupService, APIError, Response) {
+        let groupService = new GroupService()
+        super(groupService, APIError, Response);
     }
 }
 
-module.exports = (model) => new GroupController(model).getRouter({
-    controller: this,
-    path: "/v1/group"
-})
+module.exports =(GroupService, APIError, Response) => new GroupController(GroupService, APIError, Response)
+    .getRouter({
+        controller: this,
+        path: "/v1/group",
+        entity: "group"
+    })

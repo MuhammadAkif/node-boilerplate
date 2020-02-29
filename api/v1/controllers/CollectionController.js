@@ -1,17 +1,14 @@
 const BaseController = require("../../BaseController")
 
 class CollectionController extends BaseController {
-    constructor(model) {
-        super(model);
-    }
-
-    async create(req, res, next) {
-
-        return super.create(req, res, next);
+    constructor(CollectionService, APIError, Response) {
+        let collectionService = new CollectionService()
+        super(collectionService, APIError, Response);
     }
 }
 
-module.exports = (model) => new CollectionController(model).getRouter({
+module.exports = (CollectionService, APIError, Response) => new CollectionController(CollectionService, APIError, Response).getRouter({
     controller: this,
-    path: "/v1/collection"
+    path: "/v1/collection",
+    enity: "collection"
 })
