@@ -8,4 +8,25 @@ module.exports = class GroupService extends BaseService {
         super(Group);
     }
 
+    async create(group) {
+        /*
+        * A group can have multiple collections
+        * A collection can belong to single group
+        * */
+        try {
+            let { name, collectionIds } = group
+
+            let collectionAlreadyAssociated = Group.verifySingleCollection(collectionIds)
+            if(collectionAlreadyAssociated > 0)
+                throw { message: "A collection can only link to a single group", status: HttpStatusCode.CONFLICT }
+
+            const newGroup = {
+                name,
+                collectionIds
+            }
+            return await super.create(newGroup)
+        } catch (err) {
+            return err
+        }
+    }
 }

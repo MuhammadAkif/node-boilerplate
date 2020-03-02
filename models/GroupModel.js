@@ -10,4 +10,9 @@ const GroupSchema = new mongoose.Schema({
 
 });
 
+
+GroupSchema.statics.verifySingleCollection = function(collectionIds= []) {
+    return this.find( { collectionIds: { $in: collectionIds } } ).count()
+}
+
 module.exports = GroupSchema;

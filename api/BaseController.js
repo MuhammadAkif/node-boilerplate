@@ -1,4 +1,4 @@
-const {authorize} = require("../middlewares/Auth")
+const {authorize} = require("../middlewares/filtering")
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
 const BaseService = require("../services/BaseService.js")
@@ -8,7 +8,12 @@ const BaseService = require("../services/BaseService.js")
 class BaseController {
 
      constructor(service, APIError, Response) {
-        this.baseService = service || new BaseService();
+         if(!service)
+             throw new APIError({
+                 message: "Service instance required",
+                 status: HttpStatusCodes.INTERNAL_SERVER_ERROR
+             })
+         this.baseService = service;
         this.APIError = APIError;
         this.Response = Response;
         this.create = this.create.bind(this);

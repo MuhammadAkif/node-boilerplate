@@ -1,39 +1,37 @@
-const _ = require("lodash")
 class UserContext {
-
     constructor(){
         this.user = null
         this.roleType = null
     }
 
-    setStrategy(user, roles, groupId) { // group condition
-        user.roles.forEach((role) => {
-            if(this.user === null || this.user.role === "regular") {
-                if (role.role === "globalManager") {
-                    this.user = new GlobalManger(user, roles)
-                    this.roleType = "globalManager"
+    setStrategy(user, groupId) { // group condition
+        if(user.roles.length === 1 && !user.roles[0].role === "globalManager") {
+            this.user = new GlobalManger(user, groupId)
+            this.roleType = "globalManager"
+        }else {
+            user.roles.forEach((role) => {
+                if (this.user === null) {
+                    if (role.role === "manager" && role.groupId === groupId) {
+                        this.user = new Manager(user, groupId)
+                        this.roleType = "manager"
+                    } else if (role.role === "regular" && role.groupId === groupId) {
+                        this.user = new Regular(user, groupId)
+                        this.roleType = "regular"
+                    }
                 }
-                else if(role.role === "manager" && role.groupId === groupId) {
-                    this.user = new Manager(user, roles)
-                    this.roleType = "manager"
-                }
-                else if(role.role === "regular" && role.groupId === groupId) {
-                    this.user = new Regular(user, roles)
-                    this.roleType = "regular"
-                }
-            }
-        })
+            })
+        }
     }
 
-    executeStrategy(req, operation, entity) {
-        this.user.checkPermission(req, operation, entity)
+    executeStrategy(operation, resource, id) {
+        this.user.checkPermission(operation, resource, id)
     }
 }
 
 class User {
-    constructor(user, roles){
+    constructor(user, groupId){
         this.user = user
-        this.roles = roles
+        this.currentGroupId = groupId
     }
 
     extractGroupAllowed(roles = []) {
@@ -47,11 +45,11 @@ class User {
 }
 
 class GlobalManger extends User {
-    constructor(user, roles) {
-      super(user, roles)
+    constructor(user, groupId) {
+        super(user, groupId)
     }
 
-    checkPermission(req, operation, entity) {
+    checkPermission(operation, resource) {
         return true
     }
 }
@@ -61,30 +59,36 @@ class Manager extends User {
         super(user, roles)
     }
 
-    async checkPermission(req,  operation, entity) {
-       let groupId = req.query.groupId
-       let managerOfGroups = this.extractGroupAllowed(this.user.roles)
-       if(managerOfGroups.indexOf(groupId) !== -1) {
-           let can = this.roles["manager"][entity].indexOf(operation) !== -1 //array.find
-           return can
-       }
+    async checkPermission(operation, resource) {
+        let groupId = this.currentGroupId
+        let managerOfGroups = this.extractGroupAllowed(this.user.roles)
+        if(managerOfGroups.indexOf(groupId) !== -1) {
+            let operationFound = this.roles["manager"][resource].find((allowedOp) => allowedOp === operation)
+            if(operationFound)
+                return true
+
+            return false
+        }
     }
 }
 
 class Regular extends User {
-    constructor(user) {
-        super(user, roles)
+    constructor(user, groupId, id) {
+        super(user, groupId)
+        this.currentUserId = id
     }
 
-    async checkPermission(req, operation, entity) {
-       let {id} = req.params.id
-       if (operation == "read"
+    async checkPermission(operation, resource) {
+        if (operation == "read"
             ||
             operation == "update"
         ) {
-            if(this.user._id.toString() === id) {
-                let can = this.roles["regular"][entity].indexOf(operation) !== -1 //array.find
-                return can
+            if(this.user._id.toString() === this.currentUserId) {
+                let operationFound = this.roles["regular"][resource].find((allowedOp) => allowedOp === operation)
+                if(operationFound)
+                    return true
+
+                return false
             }
             else {
                 return false

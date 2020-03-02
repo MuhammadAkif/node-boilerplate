@@ -36,8 +36,8 @@ const UserSchema = new mongoose.Schema({
     }]
 });
 
-UserSchema.statics.findUserByEmail = async function (email) {
-    let user = await this.findOne({ email: email }).lean()
+UserSchema.statics.findUser = async function (query = {}) {
+    let user = await this.findOne(query).lean()
     return user
 }
 

@@ -2,8 +2,7 @@ const BaseController = require("../../BaseController")
 
 class ItemController extends BaseController {
     constructor(ItemService, APIError, Response) {
-        let itemService = new ItemService()
-        super(itemService, APIError, Response);
+        super(ItemService, APIError, Response);
     }
 }
 

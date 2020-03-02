@@ -2,8 +2,7 @@ const BaseController = require("../../BaseController")
 
 class GroupController extends BaseController {
     constructor(GroupService, APIError, Response) {
-        let groupService = new GroupService()
-        super(groupService, APIError, Response);
+        super(GroupService, APIError, Response);
     }
 }
 

@@ -1,12 +1,11 @@
 const BaseController = require("../../BaseController")
-const {authorize} = require("../../../middlewares/Auth")
+const {authorize} = require("../../../middlewares/filtering")
 const HttpStatusCode = require("http-status-codes")
 
 class UserController extends BaseController {
     constructor(UserService, APIError, Response) {
-        let userService = new UserService()
-        super(userService,APIError, Response);
-        this.userService = userService;
+        super(UserService,APIError, Response);
+        this.userService = UserService;
         this.ApiError = APIError;
         this.Response = Response;
 
