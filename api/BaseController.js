@@ -39,9 +39,7 @@ class BaseController {
 
     async readOne(req, res, next) {
         try {
-            let {id} = req.params
-            let groupId = req.query.groupId
-            let result = await this.service.readOne(id, groupId)
+            let result = await this.service.readOne(req.params.id)
             return new this.Response({
                 status: result ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,

@@ -11,8 +11,6 @@ class UserController extends BaseController {
         this.resource = "user"
 
         this.login = this.login.bind(this)
-        this.create = this.create.bind(this)
-        this.update = this.update.bind(this)
     }
 
     async login(req, res, next) {
@@ -70,6 +68,40 @@ class UserController extends BaseController {
         try{
             let {groupId} = req.query
             let users = await this.userService.readMany(groupId)
+            return new this.Response({
+                status: HttpStatusCode.OK,
+                data: users
+            })
+
+        }catch(err) {
+            return this.APIError.normalize(err)
+        }
+    }
+
+    async readOne(req, res, next) {
+        try{
+            let {groupId} = req.query
+            let {id} = req.params.id
+            let users = await this.userService.readMany(id, groupId)
+            return new this.Response({
+                status: HttpStatusCode.OK,
+                data: users
+            })
+
+        }catch(err) {
+            return this.APIError.normalize(err)
+        }
+    }
+
+    async delete(req, res, next) {
+        try {
+
+            let {groupId} = req.query
+            let {id} = req.params
+
+            //Can add check user cant delete him self
+
+            let users = await this.userService.delete(id, groupId)
             return new this.Response({
                 status: HttpStatusCode.OK,
                 data: users

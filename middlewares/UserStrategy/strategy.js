@@ -26,6 +26,8 @@ class UserContext {
     }
 
     executeStrategy(operation, resource, id) {
+        if(!operation || !resource)
+            throw new APIError({message: "Some information is missing", status:  HttpStatusCode.INTERNAL_SERVER_ERROR })
         return this.user.checkPermission(operation, resource, id)
     }
 }
@@ -99,7 +101,6 @@ class Regular extends User {
         return false
     }
 }
-
 
 
 

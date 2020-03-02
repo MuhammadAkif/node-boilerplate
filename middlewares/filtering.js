@@ -15,6 +15,9 @@ const authorize = (operation, resource) => {
         let userContext = new UserContext()
             userContext.setStrategy(req.user, groupId)
 
+        if(userContext.user === null || userContext.roleType === null)
+            throw new APIError({message: "access denied", status: HttpStatusCode.FORBIDDEN })
+
         res.locals.query = {}
         if(
             groupId && userContext.roleType === "globalManager"

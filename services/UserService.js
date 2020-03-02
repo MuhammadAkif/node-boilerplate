@@ -13,6 +13,8 @@ module.exports = class UserService extends BaseService {
 
     async login(email) {
         let user = await User.findUser({email})
+        if(!user)
+            throw { message: "User not found",  status: HttpStatusCode.NOT_FOUND}
         let token = await JWT.createToken(email)
 
         return {

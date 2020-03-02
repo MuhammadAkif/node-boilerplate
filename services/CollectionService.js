@@ -1,5 +1,7 @@
 const BaseService = require("./BaseService")
-const { Collection, Group } = require("../core/Database").models
+const Database = require("../core/Database")
+const { Collection, Group } = Database.models
+
 
 
 module.exports = class CollectionService extends BaseService {
@@ -8,9 +10,12 @@ module.exports = class CollectionService extends BaseService {
     }
 
     async create(collection, groupId) {
-        let createdCollection = super.create(collection)
-        if(groupId)
+        //TODO: transactions needed to be implemented.
+        let createdCollection = await super.create(collection)
+        if(groupId) {
+            groupId = Database.mongoose.Types.ObjectId(groupId)
             await Group.addCollectionInGroup(groupId, createdCollection._id)
+        }
         return createdCollection
     }
 }

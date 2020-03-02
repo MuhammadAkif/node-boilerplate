@@ -50,7 +50,8 @@ UserSchema.statics.updateExistingRole = async function(id, roles) {
 }
 
 UserSchema.statics.deleteUser = async function(query) {
-    await this.deleteOne(query)
+    let result = await this.deleteMany(query)
+    console.log(result)
 }
 
 UserSchema.path('roles').validate(function (roles) {
