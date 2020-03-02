@@ -52,7 +52,8 @@ class UserController extends BaseController {
     async update(req, res, next) {
         try{
             let userInfo = req.body
-            let user = await this.userService.update(userInfo)
+            let {id} = req.params
+            let user = await this.userService.update(id, userInfo)
             return new this.Response({
                 status: HttpStatusCode.OK,
                 data: user,
@@ -60,6 +61,20 @@ class UserController extends BaseController {
                     message: "User role updated"
                 }
             })
+        }catch(err) {
+            return this.APIError.normalize(err)
+        }
+    }
+
+    async readMany(req, res, next) {
+        try{
+            let {groupId} = req.query
+            let users = await this.userService.readMany(groupId)
+            return new this.Response({
+                status: HttpStatusCode.OK,
+                data: users
+            })
+
         }catch(err) {
             return this.APIError.normalize(err)
         }

@@ -9,7 +9,7 @@ const authorize = (operation, resource) => {
     return function (req, res, next) {
 
         let {groupId} = req.query
-        if(resource === "user")
+        if(!groupId && resource === "user")
             groupId = req.body.role.groupId
 
         let userContext = new UserContext()

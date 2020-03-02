@@ -42,7 +42,15 @@ UserSchema.statics.findUser = async function (query = {}) {
 }
 
 UserSchema.statics.addNewRole = async function (id, role) {
-    let updatedUser = await this.update({ id: id }, { $push: { roles: role } },)
+    await this.update({_id: id}, {$push: {roles: role}},)
+}
+
+UserSchema.statics.updateExistingRole = async function(id, roles) {
+
+}
+
+UserSchema.statics.deleteUser = async function(query) {
+    await this.deleteOne(query)
 }
 
 UserSchema.path('roles').validate(function (roles) {

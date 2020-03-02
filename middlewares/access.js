@@ -23,7 +23,7 @@ const authenticate = async (req, res, next) => {
         next()
 
     } catch(err) {
-        res.send(APIError.normalize(err))
+        res.send(HttpStatusCode.FORBIDDEN)
     }
 }
 

@@ -1,6 +1,7 @@
 const { Email } = require("../subscribers")
 const BaseService = require("./BaseService")
-const { User } = require("../core/Database").models
+let Database = require("../core/Database")
+const { User } = Database.models
 const { JWT }= require("../core/Utils")
 const HttpStatusCode = require("http-status-codes")
 
@@ -41,7 +42,7 @@ module.exports = class UserService extends BaseService {
 
     async update(id, data) {
         let {email, role} = data
-        let user = await User.findUserByEmail(email)
+        let user = await User.findUser({email})
         if (user) {
             /*
             *  i)   if user is a global manager then return conflict
@@ -66,6 +67,39 @@ module.exports = class UserService extends BaseService {
         } else {
             throw  {message: "User not found", status: HttpStatusCode.NOT_FOUND}
         }
+    }
+
+    async readMany(groupId = null) {
+        let query = {}
+        if(groupId)
+            query = { roles: { $elemMatch: { groupId } } }
+        return super.readMany(query)
+    }
+
+    async readOne(id, groupId = null) {
+        let query = {}
+        if(groupId) {
+            query = {
+                $and: [
+                    {roles: {$elemMatch: {groupId}}},
+                    {_id: Database.mongoose.Types.ObjectId(id)}
+                ]
+            }
+        }
+        return await User.findUser(query)
+    }
+
+    async delete(id, groupId = null) {
+        let query = {}
+        if(groupId)  {
+            query = {
+                $and: [
+                    {roles: {$elemMatch: {groupId}}},
+                    {_id: Database.mongoose.Types.ObjectId(id)}
+                ]
+            }
+        }
+        return await User.deleteUser(query)
     }
 
     async findUser(query) {

@@ -57,7 +57,7 @@ class BaseController {
 
     async readMany(req,res, next) {
         try {
-            let result = await this.service.readMany(res.locals.query)
+            let result = await this.service.readMany()
             return new this.Response({
                 status: result.length ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
@@ -102,7 +102,6 @@ class BaseController {
     getRouter({
                   path,
                   routes = {},
-                  resource,
                   controllerMiddleware = []
               }) {
         let routerMeta = {
