@@ -4,7 +4,6 @@ const BPromise = require("bluebird")
 const express  = require("express")
 const HTTPStatusCodes = require("http-status-codes")
 const Response = require("./Response")
-const utils = require("./Utils")
 
 class Router {
 	constructor(params) {

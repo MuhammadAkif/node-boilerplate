@@ -10,4 +10,13 @@ const GroupSchema = new mongoose.Schema({
 
 });
 
+
+GroupSchema.statics.verifySingleCollection = function(collectionIds= []) {
+    return this.find( { collectionIds: { $in: collectionIds } } ).count()
+}
+
+GroupSchema.statics.addCollectionInGroup = async function (groupId, collectionId) {
+    await this.update({_id: groupId}, { $push: { collectionIds: collectionId } })
+}
+
 module.exports = GroupSchema;

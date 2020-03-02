@@ -1,4 +1,3 @@
-
 const jwt = require("jsonwebtoken")
 const logger = require("./Logger").logger()
 const util = require("util")
@@ -16,7 +15,7 @@ module.exports = {
 		getCurrentDate: () => new Date().toISOString()
 	},
 	JWT: {
-		verifyJWTToken: async function (token) {
+		verifyToken: async function (token) {
 			return new Promise((resolve, reject) => {
 				jwt.verify(token, process.env.HASH_SALT, async function (err, decoded) {
 					if (err)
@@ -24,31 +23,59 @@ module.exports = {
 					resolve(decoded)
 				})
 			})
+		},
+		createToken: async function (data) {
+			return new Promise((resolve, reject) => {
+				jwt.sign({
+					exp: Math.floor(Date.now() / 1000) + (60 * 60),
+					data: data
+				}, process.env.HASH_SALT,function(err, token) {
+					if(err)
+						reject(err)
+
+					resolve(token)
+				})
+			})
 		}
 	},
-	Database: {
-		session: async function (db) {
-			let mongoose = db.mongoose ? db.mongoose : this.mongoose
-			if (!mongoose)
-				throw new Error("db not found")
-			
-			let session = await mongoose.startSession()
-			
-			return {
-				orgininalSession: session,
-				startTransaction: () => {
-					session.startTransaction()
-				},
-				commitTransaction: async () => {
-					await session.commitTransaction()
-					session.endSession()
-				},
-				abortTransaction: async () => {
-					await session.abortTransaction()
-					session.endSession()
-				}
-			}
-			
+	Roles: {
+		globalManager: {
+
+		},
+		manager: {
+			"collection": [
+				"read",
+				"create",
+				"update",
+				"delete"
+			],
+			"user": [
+				"read",
+				"create",
+				"update",
+				"delete"
+			],
+			"item": [
+				"read",
+				"create",
+				"update",
+				"delete"
+			]
+		},
+		regular: {
+			"collection": [
+				"read"
+			],
+			"user": [
+				"read",
+				"update"
+			],
+			"item": [
+				"read"
+			],
+			"group": [
+				"read"
+			]
 		}
 	}
 }

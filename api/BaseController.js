@@ -1,21 +1,20 @@
-const APIError = require("../core/APIError")
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
-const Response = require("../core/Response")
+const {authorize, authenticate} = require("../middlewares/authorization")
 
 
 
 class BaseController {
-    /**
-     * @param {Model} model The default model object
-     * for the controller. Will be required to create
-     * an instance of the controller
-     */
-    constructor(model) {
-        if(!model)
-            throw new Error("Please provide a model")
 
-        this._model = model;
+    constructor(service, APIError, Response) {
+        if(!service)
+            throw new APIError({
+                message: "Service instance required",
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR
+            })
+        this.service = service;
+        this.APIError = APIError;
+        this.Response = Response;
         this.create = this.create.bind(this);
         this.readOne = this.readOne.bind(this);
         this.readMany = this.readMany.bind(this);
@@ -23,134 +22,114 @@ class BaseController {
         this.delete = this.delete.bind(this);
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async create(req, res, next) {
         try {
-            let result = await this._model.create(req.body)
-            return new Response({
+            let result = await this.service.create(req.body)
+            return new this.Response({
                 status: HttpStatusCodes.CREATED,
                 data: result,
                 meta: {
-                    message: "Record found"
+                    message: "Record created"
                 }
             })
         }catch(err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async readOne(req, res, next) {
         try {
-            let {id} = req.params
-            let result = await this._model.findById(id)
-            return new Response({
+            let result = await this.service.readOne(req.params.id)
+            return new this.Response({
+                status: result ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
                 meta: {
-                    message: "Record found"
+                    message: result ? "Record found" : "Record not found"
                 }
             })
         }catch(err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async readMany(req,res, next) {
         try {
-            let result = await this._model.find(id)
-            return new Response({
+            let result = await this.service.readMany()
+            return new this.Response({
+                status: result.length ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
                 meta: {
-                    message: "Record found"
+                    message: result.length ? "Record found" : "No record found"
                 }
             })
         }catch(err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async update(req, res, next) {
         try {
             const changedEntry = req.body;
-            await this._model.update({_id: req.params._id}, {$set: changedEntry});
+            let result = await this.service.update(id, changedEntry);
 
-            return new Response({
+            return new this.Response({
+                status: result.nModified ? HttpStatusCodes.OK : HttpStatusCodes.BAD_REQUEST,
                 meta: {
-                    message: "Record found"
+                    message: result.nModified ? "Record update" : "Record not updated"
                 }
             })
         }catch (err) {
-            return APIError.normalize(err)
+            return this.APIError.normalize(err)
         }
     }
 
-    /**
-     * @param {Object} req The request object
-     * @param {Object} res The response object
-     * @param {function} next The callback to the next program handler
-     * @return {Object} res The response object
-     */
     async delete(req, res, next) {
-        await this._model.remove({ _id: req.params.id });
-        return new Response({
-            meta: {
-                message: "Record found"
-            }
-        })
+        try {
+            await this.service.delete(id);
+            return new this.Response({
+                meta: {
+                    message: "Record deleted"
+                }
+            })
+        }catch(err) {
+            return this.APIError.normalize(err)
+        }
     }
 
     getRouter({
                   path,
-                  middlewares = [],
-                  routes = {}
+                  routes = {},
+                  controllerMiddleware = []
               }) {
-
         let routerMeta = {
             path,
             controller: this,
             routes: {
                 GET: {
-                    "/:id": [...middlewares, "readOne"],
-                    "/": [...middlewares, "readMany"]
+                    "/": [...controllerMiddleware, authenticate, authorize("read", this.resource), "readMany"],
+                    "/:id": [...controllerMiddleware, authenticate, authorize("read", this.resource), "readOne"]
 
                 },
                 POST: {
-                    "/": [...middlewares, "create"]
+                    "/": [...controllerMiddleware, authenticate, authorize("create", this.resource) ,"create"]
                 },
                 PUT: {
-                    "/:id": [...middlewares, "update"]
+                    "/:id": [...controllerMiddleware, authenticate, authorize("update", this.resource),  "update"]
                 },
-                delete: {
-                    "/": [...middlewares, "delete"]
+                DELETE: {
+                    "/:id": [...controllerMiddleware, authenticate, authorize("delete", this.resource), "delete"]
                 }
             }
-
         }
 
-        routerMeta.routes = { ...routerMeta.routes, routes }
+        Object.keys(routes).forEach((action) => {
+            if(routerMeta.routes[action]) {
+                routerMeta.routes[action] = {...routerMeta.routes[action], ...routes[action]}
+            }else {
+                routerMeta.routes[action] = routes[action]
+            }
+        })
 
         return new Router(routerMeta).registerRoutes()
 

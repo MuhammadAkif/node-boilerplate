@@ -1,6 +1,7 @@
 const dotenv =require("dotenv")
 /* To load .env variables */
 dotenv.config()
+const APIError = require("../core/APIError")
 const bodyParser = require("body-parser")
 const compression = require("compression")
 const cors = require("cors")
@@ -13,13 +14,14 @@ const HttpStatus= require("http-status-codes")
 const morgan = require("morgan")
 const path = require("path")
 const RateLimit = require("express-rate-limit")
+const Response = require("./Response")
 const utils = require("./Utils")
+
 
 class APIServer {
 	constructor() {
 		this.app = express()
 		this.database = database
-
 	}
 
 	_handleErrors() {
@@ -73,7 +75,7 @@ class APIServer {
 	_setupRoutes () {
 		this.router = express.Router()
 		const apiServer = this
-
+		this.services = require("../services/index")
 		const routesDir = path.join(__dirname, "../api/v1", "controllers")
 
 		fs
@@ -81,9 +83,10 @@ class APIServer {
 			.forEach((file) => {
 				if (file.match(/(.+Controller)\.js$/) && !file.match(/BaseController.js/)) {
 
-					let modelName = file.split("Controller")[0]
+					let serviceName = file.split("Controller")[0]
+					let service = this.services[serviceName + "Service"]
 
-					let route = require(path.join(routesDir, file))(this.database.models[modelName])
+					let route = require(path.join(routesDir, file))(service, APIError, Response)
 
 					if (route.path) {
 

@@ -22,9 +22,40 @@ const UserSchema = new mongoose.Schema({
         index: true
     },
     roles: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Role',
+        role: {
+            type: String,
+            enum : ['regular', 'manager', 'globalManager'],
+            required: [true, "Role name is required"],
+            index: true
+        },
+        groupId: {
+            type: String,
+            required: false,
+            default: null
+        }
     }]
 });
+
+UserSchema.statics.findUser = async function (query = {}) {
+    let user = await this.findOne(query).lean()
+    return user
+}
+
+UserSchema.statics.addNewRole = async function (id, role) {
+    await this.update({_id: id}, {$push: {roles: role}},)
+}
+
+UserSchema.statics.updateExistingRole = async function(id, roles) {
+
+}
+
+UserSchema.statics.deleteUser = async function(query) {
+    let result = await this.deleteMany(query)
+    console.log(result)
+}
+
+UserSchema.path('roles').validate(function (roles) {
+    return true
+})
 
 module.exports = UserSchema;
