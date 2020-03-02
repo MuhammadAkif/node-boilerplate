@@ -1,5 +1,5 @@
 const BaseController = require("../../BaseController")
-const {authorize} = require("../../../middlewares/filtering")
+const {authorize, authenticate} = require("../../../middlewares/authorization")
 const HttpStatusCode = require("http-status-codes")
 
 class UserController extends BaseController {
@@ -8,6 +8,7 @@ class UserController extends BaseController {
         this.userService = UserService;
         this.ApiError = APIError;
         this.Response = Response;
+        this.resource = "user"
 
         this.login = this.login.bind(this)
         this.create = this.create.bind(this)
@@ -68,15 +69,11 @@ class UserController extends BaseController {
 module.exports = (UserService, APIError, Response) => new UserController(UserService, APIError, Response)
     .getRouter({
         controller: this,
-        entity: "user",
+        resource: this.resource,
         path: "/v1/user",
         routes: {
             POST: {
-                "/login": ["login"],
-                "/": ["create"]
-            },
-            PUT: {
-                "/:id" : ["update"]
+                "/login": ["login"]
             }
         }
     })

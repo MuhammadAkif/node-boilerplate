@@ -1,19 +1,18 @@
-const {authorize} = require("../middlewares/filtering")
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
-const BaseService = require("../services/BaseService.js")
+const {authorize, authenticate} = require("../middlewares/authorization")
 
 
 
 class BaseController {
 
-     constructor(service, APIError, Response) {
-         if(!service)
-             throw new APIError({
-                 message: "Service instance required",
-                 status: HttpStatusCodes.INTERNAL_SERVER_ERROR
-             })
-         this.baseService = service;
+    constructor(service, APIError, Response) {
+        if(!service)
+            throw new APIError({
+                message: "Service instance required",
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR
+            })
+        this.service = service;
         this.APIError = APIError;
         this.Response = Response;
         this.create = this.create.bind(this);
@@ -25,7 +24,7 @@ class BaseController {
 
     async create(req, res, next) {
         try {
-            let result = await this.baseService.create(req.body)
+            let result = await this.service.create(req.body)
             return new this.Response({
                 status: HttpStatusCodes.CREATED,
                 data: result,
@@ -41,7 +40,8 @@ class BaseController {
     async readOne(req, res, next) {
         try {
             let {id} = req.params
-            let result = await this.baseService.readOne(id)
+            let groupId = req.query.groupId
+            let result = await this.service.readOne(id, groupId)
             return new this.Response({
                 status: result ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
@@ -57,7 +57,7 @@ class BaseController {
 
     async readMany(req,res, next) {
         try {
-            let result = await this.baseService.readMany(res.locals.query)
+            let result = await this.service.readMany(res.locals.query)
             return new this.Response({
                 status: result.length ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND,
                 data: result,
@@ -73,7 +73,7 @@ class BaseController {
     async update(req, res, next) {
         try {
             const changedEntry = req.body;
-            let result = await this.baseService.update(id, changedEntry);
+            let result = await this.service.update(id, changedEntry);
 
             return new this.Response({
                 status: result.nModified ? HttpStatusCodes.OK : HttpStatusCodes.BAD_REQUEST,
@@ -88,7 +88,7 @@ class BaseController {
 
     async delete(req, res, next) {
         try {
-            await this.baseService.delete(id);
+            await this.service.delete(id);
             return new this.Response({
                 meta: {
                     message: "Record deleted"
@@ -101,50 +101,38 @@ class BaseController {
 
     getRouter({
                   path,
-                  middlewares = [],
                   routes = {},
-                  entity
+                  resource,
+                  controllerMiddleware = []
               }) {
-
-            // let entity = this._model.instance.constructor.modelName
         let routerMeta = {
             path,
             controller: this,
-            // routes: {
-            //     GET: {
-            //         "/": [...middlewares, authorize("read", entity), "readMany"],
-            //         "/:id": [...middlewares, authorize("read", entity), "readOne"]
-            //
-            //     },
-            //     POST: {
-            //         "/": [...middlewares, authorize("create", entity) ,"create"]
-            //     },
-            //     PUT: {
-            //         "/:id": [...middlewares, authorize("update", entity),  "update"]
-            //     },
-            //     DELETE: {
-            //         "/:id": [...middlewares, authorize("delete", entity), "delete"]
-            //     }
-            // }
             routes: {
                 GET: {
-                    "/": [...middlewares, "readMany"],
-                    "/:id": [...middlewares, "readOne"]
+                    "/": [...controllerMiddleware, authenticate, authorize("read", this.resource), "readMany"],
+                    "/:id": [...controllerMiddleware, authenticate, authorize("read", this.resource), "readOne"]
 
                 },
                 POST: {
-                    "/": [...middlewares, "create"]
+                    "/": [...controllerMiddleware, authenticate, authorize("create", this.resource) ,"create"]
                 },
                 PUT: {
-                    "/:id": [...middlewares, "update"]
+                    "/:id": [...controllerMiddleware, authenticate, authorize("update", this.resource),  "update"]
                 },
                 DELETE: {
-                    "/:id": [...middlewares, "delete"]
+                    "/:id": [...controllerMiddleware, authenticate, authorize("delete", this.resource), "delete"]
                 }
             }
         }
 
-        routerMeta.routes = { ...routerMeta.routes, ...routes }
+        Object.keys(routes).forEach((action) => {
+            if(routerMeta.routes[action]) {
+                routerMeta.routes[action] = {...routerMeta.routes[action], ...routes[action]}
+            }else {
+                routerMeta.routes[action] = routes[action]
+            }
+        })
 
         return new Router(routerMeta).registerRoutes()
 

@@ -6,13 +6,14 @@ const {JWT} = require("../core/Utils")
 
 const authenticate = async (req, res, next) => {
     try {
-        let token = req["X-Auth"]
+        //TODO: add password security ( ONLY implemented for POC )
+        let token = req.headers["x-auth"]
         if (!token)
-            res.send(HttpStatusCode.FORBIDDEN).json({message: "Auth token is missing"})
+            res.send(HttpStatusCode.FORBIDDEN).json({message: "Auth token is missing"}) // call needs to be improved
 
-        let decodedUser = JWT.verifyToken(token)
+        let decodedUser = await JWT.verifyToken(token)
 
-        let user = await UserService.findUser({ email: decodedUser.email })
+        let user = await UserService.findUser({ email: decodedUser.data })
 
         if(!user)
             return res.status(HttpStatusCode.UNAUTHORIZED).json({message: "Invalid Auth token"})

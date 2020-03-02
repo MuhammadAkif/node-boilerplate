@@ -15,4 +15,8 @@ GroupSchema.statics.verifySingleCollection = function(collectionIds= []) {
     return this.find( { collectionIds: { $in: collectionIds } } ).count()
 }
 
+GroupSchema.statics.addCollectionInGroup = function (groupId, collectionId) {
+    this.update({_id: groupId}, { $push: { collectionIds: collectionId } })
+}
+
 module.exports = GroupSchema;

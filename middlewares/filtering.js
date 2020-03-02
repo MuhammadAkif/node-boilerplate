@@ -1,27 +1,28 @@
 const APIError = require("../core/APIError")
 const HttpStatusCode = require("http-status-codes")
-//const models = require("../core/Database").models
 const {UserContext} = require("./UserStrategy/strategy")
+// eslint-disable-next-line no-unused-vars
 const {Roles} = require("../core/Utils")
 
 
-const authorize = async (operation, resource) => {
+const authorize = (operation, resource) => {
     return function (req, res, next) {
-        if(!req.query.groupId)
-            throw new APIError({ message: "no group id provided", status: HttpStatusCode.BAD_REQUEST })
 
         let {groupId} = req.query
+        if(resource === "user")
+            groupId = req.body.role.groupId
 
-        let userContext = new UserContext().setStrategy(req.user, groupId)
+        let userContext = new UserContext()
+            userContext.setStrategy(req.user, groupId)
 
         res.locals.query = {}
         if(
-            req.query.groupId && userContext.roleType === "globalManager"
+            groupId && userContext.roleType === "globalManager"
             ||
-            req.query.groupId && userContext.roleType === "manager"
+            groupId && userContext.roleType === "manager"
 
         ) {
-            res.locals.query = { groupId: req.query.groupId }
+            res.locals.query = { groupId }
         }
 
         //check group id on top

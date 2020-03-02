@@ -1,3 +1,5 @@
+const HttpStatusCode = require("http-status-codes")
+const { Roles } = require("../../core/Utils")
 class UserContext {
     constructor(){
         this.user = null
@@ -5,7 +7,7 @@ class UserContext {
     }
 
     setStrategy(user, groupId) { // group condition
-        if(user.roles.length === 1 && !user.roles[0].role === "globalManager") {
+        if(user.roles.length === 1 && user.roles[0].role === "globalManager") {
             this.user = new GlobalManger(user, groupId)
             this.roleType = "globalManager"
         }else {
@@ -24,24 +26,27 @@ class UserContext {
     }
 
     executeStrategy(operation, resource, id) {
-        this.user.checkPermission(operation, resource, id)
+        return this.user.checkPermission(operation, resource, id)
     }
 }
 
 class User {
-    constructor(user, groupId){
+    constructor(user, groupId = null){
         this.user = user
         this.currentGroupId = groupId
     }
 
-    extractGroupAllowed(roles = []) {
-        //use reduce
-        return roles.map((role) => {
-            if(role === "manager") {
-                return role.groupId
-            }
-        })
-    }
+    // isGroupAllowed(roles = []) {
+    //     let matchedRoles = roles.filter((role) => {
+    //         if(role.groupId === this.currentGroupId) {
+    //             return role.groupId
+    //         }
+    //     })
+    //     if(matchedRoles.length)
+    //         return true
+    //
+    //     return false
+    // }
 }
 
 class GlobalManger extends User {
@@ -55,20 +60,20 @@ class GlobalManger extends User {
 }
 
 class Manager extends User {
-    constructor(user, roles) {
-        super(user, roles)
+    constructor(user, groupId) {
+        super(user, groupId)
     }
 
-    async checkPermission(operation, resource) {
-        let groupId = this.currentGroupId
-        let managerOfGroups = this.extractGroupAllowed(this.user.roles)
-        if(managerOfGroups.indexOf(groupId) !== -1) {
-            let operationFound = this.roles["manager"][resource].find((allowedOp) => allowedOp === operation)
+    checkPermission(operation, resource) {
+        // let isGroupAllowed = this.isGroupAllowed(this.user.roles)
+        // if(isGroupAllowed) {
+            let operationFound = Roles["manager"][resource].find((allowedOp) => allowedOp === operation)
             if(operationFound)
                 return true
 
             return false
-        }
+       // }
+       // return false
     }
 }
 
@@ -79,12 +84,9 @@ class Regular extends User {
     }
 
     async checkPermission(operation, resource) {
-        if (operation == "read"
-            ||
-            operation == "update"
-        ) {
+        if (operation == "read") {
             if(this.user._id.toString() === this.currentUserId) {
-                let operationFound = this.roles["regular"][resource].find((allowedOp) => allowedOp === operation)
+                let operationFound = Roles["regular"][resource].find((allowedOp) => allowedOp === operation)
                 if(operationFound)
                     return true
 

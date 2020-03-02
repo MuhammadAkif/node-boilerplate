@@ -45,7 +45,7 @@ module.exports = {
 		manager: {
 			"collection": [
 				"read",
-				"write",
+				"create",
 				"update",
 				"delete"
 			],
@@ -56,12 +56,6 @@ module.exports = {
 				"delete"
 			],
 			"item": [
-				"read",
-				"create",
-				"update",
-				"delete"
-			],
-			"group": [
 				"read",
 				"create",
 				"update",
