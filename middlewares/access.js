@@ -5,26 +5,24 @@ const {JWT} = require("../core/Utils")
 
 
 const authenticate = async (req, res, next) => {
-    try {
         //TODO: add password security ( ONLY implemented for POC )
         let token = req.headers["x-auth"]
         if (!token)
-           throw new APIError({ message: "Auth token is missing", status:  HttpStatusCode.FORBIDDEN })// call needs to be improved
+            res.status(HttpStatusCode.FORBIDDEN)
+            .send({message: "No auth token"})
+
 
         let decodedUser = await JWT.verifyToken(token)
 
         let user = await UserService.findUser({ email: decodedUser.data })
 
         if(!user)
-            throw new APIError({ message: "Invalid Auth token", status:  HttpStatusCode.FORBIDDEN })
+            res.status(HttpStatusCode.FORBIDDEN)
+                .send({message: "Invalid Token"})
 
         req.user = user
 
         next()
-
-    } catch(err) {
-        throw new APIError({ message: "Invalid Auth token", status:  HttpStatusCode.FORBIDDEN })
-    }
 }
 
 module.exports = { authenticate }

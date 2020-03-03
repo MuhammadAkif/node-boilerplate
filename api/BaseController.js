@@ -71,6 +71,7 @@ class BaseController {
     async update(req, res, next) {
         try {
             const changedEntry = req.body;
+            const {id} = req.params
             let result = await this.service.update(id, changedEntry);
 
             return new this.Response({
@@ -86,6 +87,7 @@ class BaseController {
 
     async delete(req, res, next) {
         try {
+            const {id} = req.params
             await this.service.delete(id);
             return new this.Response({
                 meta: {

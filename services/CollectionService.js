@@ -24,7 +24,7 @@ module.exports = class CollectionService extends BaseService {
         let query = {}
         if(groupId) {
             query = {_id: Database.mongoose.Types.ObjectId(groupId)}
-            let group = await Group.find(query)
+            let group = await Group.findOne(query)
             let collIds = group.collectionIds.map((id) => Database.mongoose.Types.ObjectId(id))
             let collections = await Collection.find({_id: {$in: collIds }})
             return collections
@@ -37,12 +37,16 @@ module.exports = class CollectionService extends BaseService {
         let query = {}
         if(groupId) {
             query = {_id: Database.mongoose.Types.ObjectId(groupId)}
-            let group = await Group.find(query)
+            let group = await Group.findOne(query)
             let collId = group.collectionIds.filter((id) => colId === id)
-            let collection = await Collection.find({ _id: Database.mongoose.Types.ObjectId(collId) })
+            if(collId.length)
+                collId = Database.mongoose.Types.ObjectId(collId[0])
+            else
+                throw { message: "Record not found", status: HttpStatusCode.NOT_FOUND }
+            let collection = await Collection.find({ _id: collId })
             return collection
         } else {
-            return super.readOne(colId)
+            return super.readOne(Database.mongoose.Types.ObjectId(colId))
         }
     }
 

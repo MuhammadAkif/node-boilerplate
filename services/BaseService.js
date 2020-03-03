@@ -1,3 +1,4 @@
+const mongoose = require("mongoose")
 module.exports = class BaseService {
     constructor(model) {
         this._model = model;
@@ -20,7 +21,7 @@ module.exports = class BaseService {
 
     async readOne(id) {
         try {
-            return await this._model.findById(id)
+            return await this._model.findById({_id: id})
         } catch (err) {
             return err
         }
@@ -39,7 +40,7 @@ module.exports = class BaseService {
 
     async update(id, changedEntry) {
         try {
-            return await this._model.update({_id: id}, {$set: changedEntry})
+            return await this._model.update({_id: mongoose.Types.ObjectId(id)}, {$set: changedEntry})
         } catch (err) {
             return err
         }
@@ -48,7 +49,7 @@ module.exports = class BaseService {
 
     async delete(id) {
         try {
-            return await this._model.remove({_id: id});
+            return await this._model.remove({_id: mongoose.Types.ObjectId(id) });
         } catch (err) {
             return err
         }
