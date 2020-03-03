@@ -39,17 +39,15 @@ module.exports = class CollectionService extends BaseService {
             query = {_id: Database.mongoose.Types.ObjectId(groupId)}
             let group = await Group.find(query)
             let collId = group.collectionIds.filter((id) => colId === id)
-            let collections = await Collection.find({ _id: Database.mongoose.Types.ObjectId(collId) })
-            return collections
+            let collection = await Collection.find({ _id: Database.mongoose.Types.ObjectId(collId) })
+            return collection
         } else {
-            return super.readMany(query)
+            return super.readOne(colId)
         }
     }
 
-    async delete(colId, groupId) {
-        if(!groupId)
-            throw new {message: "group id is required", status: HttpStatusCode.BAD_REQUEST }
-
-
+    async delete(colId, groupId = null) {
+        await super.delete(Database.mongoose.Types.ObjectId(colId))
+        await Group.update( { collectionIds: { $in: [colId] } }, { $pull: { collectionIds: colId } } )
     }
 }
