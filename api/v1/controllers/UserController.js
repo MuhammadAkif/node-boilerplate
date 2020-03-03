@@ -1,5 +1,5 @@
 const BaseController = require("../../BaseController")
-const {authorize, authenticate} = require("../../../middlewares/authorization")
+const {authorize, authenticate} = require("../../../middlewares")
 const HttpStatusCode = require("http-status-codes")
 
 class UserController extends BaseController {

@@ -1,13 +1,13 @@
-![NodeJS](https://img.shields.io/badge/node-10.15.3-green.svg)
-![NPM](https://img.shields.io/badge/npm-6.4.1-blue.svg)
-![MongoDB](https://img.shields.io/badge/mongo-4.0.5-green.svg)
+![NodeJS](https://img.shields.io/badge/node-12.16.1-green.svg)
+![NPM](https://img.shields.io/badge/npm-6.13.2-blue.svg)
+![MongoDB](https://img.shields.io/badge/mongo-4.2.0-green.svg)
 
 # REST API Server
 
 ## Table of Contents
 
 - [Dependencies](#dependencies)
-- [Installation](#instalation)
+- [Installation](#installation)
 - [Configuration](#configuration) 
 - [Quick start](#quick-start)
 
@@ -51,6 +51,7 @@ I have used a 3 layer architecture `controller/router,service,models with a pub/
 Dlack-POC
   │   app.js          # App entry point
   └───api             # Express route controllers for all the endpoints of the app
+  └───core            # contains core file like server, database, logger, apierror, response and utils.
   └───config          # contains a default config application configuration
   └───models          # Database models
   └───services        # All the business logic is here
@@ -93,8 +94,6 @@ Now the lets add new route by default your controller has below routes with ther
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
 const {authorize, authenticate} = require("../middlewares/authorization")
-
-
 
 class BaseController {
 
@@ -282,4 +281,4 @@ Suppose i want to write endpoints for users, then file names should be.
 
 
 ## Note: 
-Please create an issue if u found i will fix them and also if u dont understand the requirement.
+Please create an issues and improvements u found, i will fix them or if u have any query.

@@ -18,15 +18,16 @@ const authorize = (operation, resource) => {
         if(userContext.user === null || userContext.roleType === null)
             throw new APIError({message: "access denied", status: HttpStatusCode.FORBIDDEN })
 
-        res.locals.query = {}
-        if(
-            groupId && userContext.roleType === "globalManager"
-            ||
-            groupId && userContext.roleType === "manager"
 
-        ) {
-            res.locals.query = { groupId }
-        }
+        // res.locals.query = {}
+        // if(
+        //     groupId && userContext.roleType === "globalManager"
+        //     ||
+        //     groupId && userContext.roleType === "manager"
+        //
+        // ) {
+        //     res.locals.query = { groupId }
+        // }
 
         //check group id on top
 

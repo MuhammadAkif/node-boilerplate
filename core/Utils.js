@@ -19,7 +19,7 @@ module.exports = {
 			return new Promise((resolve, reject) => {
 				jwt.verify(token, process.env.HASH_SALT, async function (err, decoded) {
 					if (err)
-						reject(err.message)
+						reject(err)
 					resolve(decoded)
 				})
 			})
