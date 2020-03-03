@@ -1,6 +1,6 @@
-![NodeJS](https://img.shields.io/badge/node-10.15.3-green.svg)
-![NPM](https://img.shields.io/badge/npm-6.4.1-blue.svg)
-![MongoDB](https://img.shields.io/badge/mongo-4.0.5-green.svg)
+![NodeJS](https://img.shields.io/badge/node-12.16.1-green.svg)
+![NPM](https://img.shields.io/badge/npm-6.13.2-blue.svg)
+![MongoDB](https://img.shields.io/badge/mongo-4.2.0-green.svg)
 
 # REST API Server
 
