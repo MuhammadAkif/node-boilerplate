@@ -35,14 +35,16 @@ $ npm install
 
 # Configuration
 
-add config folder and .env in you code manually
+add config folder and .env in your code manually
 
 # Quick Start
 - `npm run start`
 - `npm run start-dev` (to run app with nodemon)
 
 # Architectural Overview
-I have used a 3 layer architecture contoller/router,service,models with a pub/sub. 
+I have used a 3 layer architecture `controller/router,service,models with a pub/sub`.
+
+ ![Architecture Diagram](static/archi_diagram.png?raw=true "Title")
 
 ## Folder Structure  
 ``` 
@@ -231,7 +233,7 @@ module.exports = BaseController
 
 ````
 
-If you want add a new route 
+If you want add a new route you can see below example.
 ````
 In getRouter method of our controller. This method has following parameter
 
@@ -254,7 +256,7 @@ getRouter({
         path: "/v1/dummy",
         route: {
             GET: {
-                "/XYZ":[XYZ, "XYZ"] //first element is middleware func and second is string which is the name of ocntroller method.
+                "/XYZ":[XYZ, "XYZ"] //first element is middleware func and second is string which is the name of controller method and it shoudl on last.
             }
         }
     })
