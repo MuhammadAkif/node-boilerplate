@@ -1,0 +1,30 @@
+{
+  "application": {
+    "name": "inventhub",
+    "address": "0.0.0.0",
+    "backlog": 511,
+    "path": "/api",
+    "rateLimit": {
+      "timeWindow": 15,
+      "maxRequests": 3000
+    }
+  },
+  "database": {
+    "debug": false,
+    "options": {
+      "keepAlive": 1,
+      "useNewUrlParser": true
+    }
+  },
+  "logs": {
+    "dateFormat": "UTC Z - YYYY MMMM Do, HH:mm:ss",
+    "transports": [
+      "console"
+    ],
+    "request": {
+      "json": false,
+      "meta": false,
+      "format": "\"{{req.method}} {{req.url}} HTTP/{{req.httpVersion}}\" {{res.statusCode}} {{res.responseTime}}ms"
+    }
+  }
+}

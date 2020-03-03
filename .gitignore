@@ -1,8 +1,4 @@
 node_modules/
 .idea
-.env
-.env*
 .DS_Store
 package-lock.json
-config
-config/default.json
