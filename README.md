@@ -280,4 +280,4 @@ Suppose i want to write endpoints for users, then file names should be.
 
 
 ## Note: 
-Please create an issue if u found i will fix them and also if u dont understand the requirement.
+Please create an issues and improvements u found, i will fix them or if u have any query.
