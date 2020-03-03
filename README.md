@@ -7,7 +7,7 @@
 ## Table of Contents
 
 - [Dependencies](#dependencies)
-- [Installation](#instalation)
+- [Installation](#installation)
 - [Configuration](#configuration) 
 - [Quick start](#quick-start)
 
@@ -93,8 +93,6 @@ Now the lets add new route by default your controller has below routes with ther
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
 const {authorize, authenticate} = require("../middlewares/authorization")
-
-
 
 class BaseController {
 
