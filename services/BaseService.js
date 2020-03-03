@@ -40,7 +40,10 @@ module.exports = class BaseService {
 
     async update(id, changedEntry) {
         try {
-            return await this._model.update({_id: mongoose.Types.ObjectId(id)}, {$set: changedEntry})
+            return await this._model.update(
+                {_id: mongoose.Types.ObjectId(id)},
+                {$set: changedEntry},
+                {runValidators: true})
         } catch (err) {
             throw err
         }
