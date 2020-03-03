@@ -1,6 +1,6 @@
 const HttpStatusCodes = require("http-status-codes")
 const Router = require("../core/Router")
-const {authorize, authenticate} = require("../middlewares/authorization")
+const {authorize, authenticate} = require("../middlewares")
 
 
 
