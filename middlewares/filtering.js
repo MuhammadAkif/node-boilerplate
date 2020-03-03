@@ -35,7 +35,7 @@ const authorize = (operation, resource) => {
         let groupFound = true
         if(userContext.roleType === "globalManager" && groupId) {
             let group = await GroupService.readOne(mongoose.Types.ObjectId(groupId))
-            if(group)
+            if(!group)
                 groupFound = false
         }
 
