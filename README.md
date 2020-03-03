@@ -261,3 +261,25 @@ getRouter({
         }
     })
 ````
+
+## Add Service
+You have to create a service in services folder and extend that from base Service and your service will have 4 basic crud operations.
+You can override them also in your service.
+Import your service in index file and return an instances from index.
+Name of controller and service should be same to support automation.
+
+## Add Model
+Add a model in models folder.
+
+## Naming Convention for service, model and controller
+<Your-FileName><Service | Model | Controller>.js
+example
+Suppose i want to write endpoints for users, then file names should be.
+
+- UserController.js
+- UserService.js
+- UserModel.js
+
+
+## Note: 
+Please create an issue if u found i will fix them and also if u dont understand the requirement.
