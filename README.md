@@ -51,6 +51,7 @@ I have used a 3 layer architecture `controller/router,service,models with a pub/
 Dlack-POC
   │   app.js          # App entry point
   └───api             # Express route controllers for all the endpoints of the app
+  └───core            # contains core file like server, database, logger, apierror, response and utils.
   └───config          # contains a default config application configuration
   └───models          # Database models
   └───services        # All the business logic is here
