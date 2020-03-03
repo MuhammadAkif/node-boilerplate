@@ -25,8 +25,8 @@ module.exports = class UserService extends BaseService {
     async create(data) {
         let {email, role} = data
         let user = await User.findUser({email})
-        if(user) {
-            throw { message: "User already exists", status: HttpStatusCode.CONFLICT }
+        if (user) {
+            throw {message: "User already exists", status: HttpStatusCode.CONFLICT}
         }
 
         const newUser = {

@@ -10,7 +10,7 @@ const authorize = (operation, resource) => {
 
         let {groupId} = req.query
         if(!groupId && resource === "user")
-            groupId = req.body.role.groupId
+            groupId = req.body.role ? req.body.role.groupId : null
 
         let userContext = new UserContext()
             userContext.setStrategy(req.user, groupId)

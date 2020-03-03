@@ -14,7 +14,7 @@ module.exports = class BaseService {
             let result = await this._model.create(user)
             return result
         } catch (err) {
-            return err
+            throw err
         }
     }
 
@@ -33,7 +33,7 @@ module.exports = class BaseService {
             return await this._model.find(query)
 
         } catch (err) {
-            return err
+            throw err
         }
     }
 
@@ -42,7 +42,7 @@ module.exports = class BaseService {
         try {
             return await this._model.update({_id: mongoose.Types.ObjectId(id)}, {$set: changedEntry})
         } catch (err) {
-            return err
+            throw err
         }
     }
 
@@ -51,7 +51,7 @@ module.exports = class BaseService {
         try {
             return await this._model.remove({_id: mongoose.Types.ObjectId(id) });
         } catch (err) {
-            return err
+            throw err
         }
     }
 }
