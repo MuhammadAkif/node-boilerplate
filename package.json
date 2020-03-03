@@ -1,6 +1,6 @@
 {
-  "name": "inventhub-rest-api",
-  "version": "0.8.3-alpha.3",
+  "name": "makeen-bk-poc",
+  "version": "1.0.0",
   "description": "express, mongodb, mongoose",
   "main": "index.js",
   "scripts": {
