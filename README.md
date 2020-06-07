@@ -40,6 +40,11 @@ add config folder and .env in your code manually
 # Quick Start
 - `npm run start`
 - `npm run start-dev` (to run app with nodemon)
+- `envoinment variables`
+- MONGODB_CONNECTION_STRING
+- LOGGER_LEVEL
+- HASH_SALT
+- PORT
 
 # Architectural Overview
 I have used a 3 layer architecture `controller/router,service,models with a pub/sub`.
